@@ -11,3 +11,4 @@ Future Content
 - Multiple new Patterns
 - CRUD Operations
 - More Complex Database
+- Github Actions CI/CD
