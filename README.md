@@ -1,7 +1,7 @@
 # BlazorTemplate
 
-A Standard Blazor Server Application for refrence in new Projects.
-Plus a refrence for multiple usefull implementations like Patterns and CRUD Operations.
+A Standard Blazor Server Application for reference in new Projects.
+Plus a reference for multiple useful implementations like Patterns and CRUD Operations.
 
 Content:
 - Entity Framework Core to MSSQL DB
@@ -12,3 +12,5 @@ Future Content
 - CRUD Operations
 - More Complex Database
 - Github Actions CI/CD
+- Async Await Example
+- Lambda Example
