@@ -1,0 +1,111 @@
+﻿@page "/fetchdata"
+
+<PageTitle>Weather forecast</PageTitle>
+
+@using BlazorTemplate.Data
+@using BlazorTemplate.Data.Models
+@using BlazorTemplate.Data.Repositories
+@using BlazorTemplate.Data.UnitOfWork
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<h1>Weather forecast</h1>
+
+<Button Color="Color.Primary" Clicked="@ShowModal">Show Modal</Button>
+
+@if (tasks == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Done</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in tasks)
+            {
+                <tr>
+                    <td>@task.Id</td>
+                    <td>@task.Title</td>
+                    <td>@task.Description</td>
+                    <td>
+                        <Switch TValue="bool" @bind-Checked="@task.IsDone" Disabled></Switch>    
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<Modal @ref="modalRef">
+    <ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>New Task</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <FieldLabel>Task title</FieldLabel>
+                <TextEdit @bind-Text="@newTask.Title" Placeholder="Enter title..." />
+            </Field>
+            <Field>
+                <FieldLabel>Task description</FieldLabel>
+                <TextEdit @bind-Text="@newTask.Description" Placeholder="Enter description..." />
+            </Field>
+            <Field>
+                <FieldLabel>Task description</FieldLabel>
+                <Switch TValue="bool" @bind-Checked="@newTask.IsDone" />
+            </Field>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
+            <Button Color="Color.Primary" Clicked="@SaveModal">Save Changes</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+    private IEnumerable<Data.Models.ToDoTask>? tasks;
+
+    private Modal modalRef;
+
+    private ToDoTask newTask = new ToDoTask();
+
+    private Task ShowModal()
+    {
+        newTask = new ToDoTask();
+        return modalRef.Show();
+    }
+
+    private Task HideModal()
+    {
+        return modalRef.Hide();
+    }
+
+    private async Task SaveModal()
+    {
+        using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
+        {
+            unitOfWork.Tasks.Add(newTask);
+            await unitOfWork.SaveAsync();
+            tasks = await unitOfWork.Tasks.GetAllAsync();
+        }
+        await modalRef.Hide();
+    }
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
+        {
+            tasks = await unitOfWork.Tasks.GetTasksToDoAsync();
+            unitOfWork.Save();
+        }
+    }    
+}
