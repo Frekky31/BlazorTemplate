@@ -16,7 +16,12 @@ namespace BlazorTemplate.Data
         {
             return await _appDBContext.Tasks.ToListAsync();
         }
-        
+
+        public async Task<List<Topic>> GetAllTopicsAsync()
+        {
+            return await _appDBContext.Topics.ToListAsync();
+        }
+
         public async Task<bool> InsertTaskAsync(ToDoTask task)
         {
             await _appDBContext.Tasks.AddAsync(task);

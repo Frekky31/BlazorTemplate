@@ -1,4 +1,4 @@
-﻿@page "/fetchdata"
+﻿@page "/taskoverview"
 
 <PageTitle>Weather forecast</PageTitle>
 
@@ -8,6 +8,7 @@
 @using BlazorTemplate.Data.UnitOfWork
 @using Microsoft.EntityFrameworkCore
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject DatabaseService dbService
 
 <h1>Weather forecast</h1>
 
@@ -91,21 +92,24 @@ else
 
     private async Task SaveModal()
     {
-        using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
-        {
-            unitOfWork.Tasks.Add(newTask);
-            await unitOfWork.SaveAsync();
-            tasks = await unitOfWork.Tasks.GetAllAsync();
-        }
+        newTask.Topic = (await dbService.GetAllTopicsAsync()).First();
+        await dbService.InsertTaskAsync(newTask);
+        tasks = await dbService.GetAllTasksAsync();
+        //using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
+        //{
+        //    unitOfWork.Tasks.Add(newTask);
+        //    await unitOfWork.SaveAsync();
+        //    tasks = await unitOfWork.Tasks.GetAllAsync();
+        //}
         await modalRef.Hide();
     }
 
     protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
-        using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
-        {
-            tasks = await unitOfWork.Tasks.GetTasksToDoAsync();
-            unitOfWork.Save();
-        }
+        tasks = await dbService.GetAllTasksAsync();
+        //using (var unitOfWork = new UnitOfWork(DbFactory.CreateDbContext()))
+        //{
+        //    tasks = await unitOfWork.Tasks.GetAllAsync();
+        //}
     }    
 }
